@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: app
+appId: com.piglett.app
+productName: Piglett
 directories:
   buildResources: build
 files:
@@ -10,8 +10,13 @@ files:
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
 asarUnpack:
   - resources/**
+extraResources:
+  - from: resources/native
+    to: native
+    filter:
+      - '**/*'
 win:
-  executableName: app
+  executableName: Piglett
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

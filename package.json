@@ -1,0 +1,17 @@
+{
+  "name": "piglett",
+  "private": true,
+  "scripts": {
+    "check": "node tooling/check.mjs",
+    "dev": "npm --prefix app run dev",
+    "build": "npm --prefix app run build",
+    "build:core": "node tooling/build-core.mjs",
+    "build:app": "npm --prefix app run build",
+    "build:unpack": "npm --prefix app run build:unpack",
+    "build:mac": "npm --prefix app run build:mac",
+    "build:win": "npm --prefix app run build:win",
+    "build:linux": "npm --prefix app run build:linux",
+    "lint": "npm --prefix app run lint",
+    "test:core": "node tooling/test-core.mjs"
+  }
+}
