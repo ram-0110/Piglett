@@ -3,7 +3,9 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  getCoreBinaryStatus: () => ipcRenderer.invoke('core:binary-status')
+  getCoreBinaryStatus: () => ipcRenderer.invoke('core:binary-status'),
+  coreRequest: (action, body) => ipcRenderer.invoke('core:request', action, body),
+  chooseFile: (kind) => ipcRenderer.invoke('core:choose-file', kind)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

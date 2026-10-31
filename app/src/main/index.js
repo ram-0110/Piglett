@@ -1,8 +1,9 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { resolveCoreBinaryPath } from './core/binary.js'
+import { coreRequest, startCore, stopCore } from './core/client.js'
 
 function createWindow() {
   // Create the browser window.
@@ -52,8 +53,21 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.handle('core:request', (_, action, body) => coreRequest(action, body))
+  ipcMain.handle('core:choose-file', async (_, kind) => {
+    const options = {
+      blender: { title: 'Choose Blender executable', properties: ['openFile'] },
+      project: { title: 'Choose Blender project folder', properties: ['openDirectory'] },
+      output: { title: 'Choose output folder', properties: ['openDirectory', 'createDirectory'] }
+    }[kind]
+    if (!options) throw new Error('Unknown file picker')
+    const result = await dialog.showOpenDialog(options)
+    if (result.canceled) return null
+    const selected = result.filePaths[0]
+    return kind === 'blender' && selected.endsWith('.app')
+      ? join(selected, 'Contents', 'MacOS', 'Blender')
+      : selected
+  })
   ipcMain.handle('core:binary-status', () => {
     try {
       resolveCoreBinaryPath()
@@ -64,6 +78,7 @@ app.whenReady().then(() => {
   })
 
   createWindow()
+  void startCore().catch((error) => console.error('Core startup failed:', error))
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
@@ -80,6 +95,7 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+app.on('before-quit', stopCore)
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
